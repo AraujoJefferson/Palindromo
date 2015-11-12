@@ -3,6 +3,7 @@ package prova.admatic.controller;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.Normalizer;
@@ -17,7 +18,7 @@ public class ArquivoProcessa {
 	private ArrayList<String> arquivoConteudoInvertido;
 	
 
-	public ArquivoProcessa(Arquivo arquivo){
+	public ArquivoProcessa(Arquivo arquivo) throws Exception{
 		this.arquivo = arquivo;
 		this.arquivoConteudo = new ArrayList<String>();
 		this.arquivoConteudoInvertido = new ArrayList<String>();
@@ -52,7 +53,7 @@ public class ArquivoProcessa {
 		return resultado;
 	}
 	
-	private void buscaTrataArquivo(String caminhoWeb){
+	private void buscaTrataArquivo(String caminhoWeb) throws Exception{
 		try{
 			URL url = new URL(caminhoWeb);
 		
@@ -70,16 +71,17 @@ public class ArquivoProcessa {
 	        }
 	        in.close();
 		}catch(FileNotFoundException fnf){
-			System.out.println("O arquivo não foi encontrado: "+ fnf.getMessage());			
+			throw new FileNotFoundException("O arquivo não foi encontrado: "+ fnf.getMessage());
 		}catch(UnknownHostException uhe){
-			System.out.println("Não foi possível buscar o arquivo: "+ uhe.getMessage());			
+			throw new UnknownHostException("Não foi possível buscar o arquivo: "+ uhe.getMessage());
+		}catch(MalformedURLException mfu){
+			throw new MalformedURLException("Formato da url inválido: "+ mfu.getMessage());
 		}catch (Exception e) {  
-	        System.out.println("Problema na leitura do arquivo: ");
-	        e.printStackTrace();
+			throw new Exception("Problema na leitura do arquivo: "+e.getMessage());
 	    }  		
 	}
 	
-	private String invertePalavra(String palavra){
+	public String invertePalavra(String palavra){
 		String invertido = new String();
 		char[] charArray = palavra.toCharArray();
 		for(int i = (charArray.length - 1); i >= 0 ; i--){
@@ -88,7 +90,7 @@ public class ArquivoProcessa {
 		return invertido;
 	}
 	
-	private String realizaTratamentos(String palavra){
+	public String realizaTratamentos(String palavra){
 		if(palavra == null || palavra.isEmpty()){
 			return new String("");
 		}
@@ -102,7 +104,7 @@ public class ArquivoProcessa {
 		return palavra.replaceAll("[^a-zA-Z]", "");
 	}
 	
-	private String trataAcentuacao(String str) {
-	    return Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+	private String trataAcentuacao(String palavra) {
+	    return Normalizer.normalize(palavra, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 	}
 }
